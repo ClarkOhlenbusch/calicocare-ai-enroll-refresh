@@ -1,7 +1,12 @@
-import { Settings, User, Bell } from "lucide-react";
+import { Settings, User, Bell, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const Header = () => {
+interface HeaderProps {
+  currentPage: "home" | "enroll";
+  onPageChange: (page: "home" | "enroll") => void;
+}
+
+const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   return (
     <header className="bg-card shadow-soft border-b">
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -16,11 +21,19 @@ const Header = () => {
           </div>
           
           <nav className="hidden md:flex items-center space-x-8">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              <User className="w-4 h-4 mr-2" />
+            <Button 
+              variant="ghost" 
+              className={currentPage === "home" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}
+              onClick={() => onPageChange("home")}
+            >
+              <Home className="w-4 h-4 mr-2" />
               Home
             </Button>
-            <Button variant="ghost" className="text-primary font-medium">
+            <Button 
+              variant="ghost" 
+              className={currentPage === "enroll" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}
+              onClick={() => onPageChange("enroll")}
+            >
               <User className="w-4 h-4 mr-2" />
               Enroll
             </Button>
