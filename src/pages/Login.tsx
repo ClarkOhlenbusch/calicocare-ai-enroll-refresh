@@ -45,7 +45,10 @@ const Login = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Static login for now - will connect to backend later
-    console.log("Login attempt:", { email, password });
+    if (email && password) {
+      localStorage.setItem("authToken", "demo-token");
+      window.location.href = "/";
+    }
   };
 
   const feature = features[currentFeature];
