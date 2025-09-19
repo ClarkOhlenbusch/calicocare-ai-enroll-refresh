@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
-  currentPage: "home" | "enroll" | "careplans" | "alexa" | "askcali";
-  onPageChange: (page: "home" | "enroll" | "careplans" | "alexa" | "askcali") => void;
+  currentPage: "home" | "enroll" | "careplans" | "alexa" | "askcali" | "settings";
+  onPageChange: (page: "home" | "enroll" | "careplans" | "alexa" | "askcali" | "settings") => void;
   onLogout: () => void;
 }
 
@@ -74,7 +74,11 @@ const Header = ({ currentPage, onPageChange, onLogout }: HeaderProps) => {
                 </div>
                 <span>Ask Cali</span>
               </Button>
-              <Button variant="ghost" className="flex items-center space-x-2 text-muted-foreground hover:text-foreground">
+              <Button 
+                variant="ghost"
+                className={`flex items-center space-x-2 ${currentPage === "settings" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+                onClick={() => onPageChange("settings")}
+              >
                 <Settings className="w-4 h-4" />
                 <span>Settings</span>
               </Button>
