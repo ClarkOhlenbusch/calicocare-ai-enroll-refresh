@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
-  currentPage: "home" | "enroll" | "careplans" | "alexa";
-  onPageChange: (page: "home" | "enroll" | "careplans" | "alexa") => void;
+  currentPage: "home" | "enroll" | "careplans" | "alexa" | "askcali";
+  onPageChange: (page: "home" | "enroll" | "careplans" | "alexa" | "askcali") => void;
   onLogout: () => void;
 }
 
@@ -64,6 +64,16 @@ const Header = ({ currentPage, onPageChange, onLogout }: HeaderProps) => {
                 <Mic className="w-4 h-4" />
                 <span>Alexa</span>
               </Button>
+              <Button 
+                variant="ghost"
+                className={`flex items-center space-x-2 ${currentPage === "askcali" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+                onClick={() => onPageChange("askcali")}
+              >
+                <div className="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center">
+                  <span className="text-orange-600 text-xs">🐱</span>
+                </div>
+                <span>Ask Cali</span>
+              </Button>
               <Button variant="ghost" className="flex items-center space-x-2 text-muted-foreground hover:text-foreground">
                 <Settings className="w-4 h-4" />
                 <span>Settings</span>
@@ -71,14 +81,8 @@ const Header = ({ currentPage, onPageChange, onLogout }: HeaderProps) => {
             </nav>
           </div>
           
-          {/* Right side - Ask Cali and Account */}
+          {/* Right side - Account */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                <span className="text-orange-600 text-sm font-medium">🐱</span>
-              </div>
-              <span className="text-sm text-muted-foreground">Ask Cali</span>
-            </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

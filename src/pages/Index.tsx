@@ -5,9 +5,10 @@ import EnrollmentContainer from "@/components/EnrollmentContainer";
 import Dashboard from "@/components/Dashboard";
 import CarePlansPage from "@/components/CarePlansPage";
 import AlexaPage from "@/components/AlexaPage";
+import AskCaliPage from "@/components/AskCaliPage";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<"home" | "enroll" | "careplans" | "alexa">("home");
+  const [currentPage, setCurrentPage] = useState<"home" | "enroll" | "careplans" | "alexa" | "askcali">("home");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const Index = () => {
       {currentPage === "home" ? <Dashboard /> : 
        currentPage === "enroll" ? <EnrollmentContainer /> : 
        currentPage === "alexa" ? <AlexaPage /> :
+       currentPage === "askcali" ? <AskCaliPage /> :
        <CarePlansPage />}
     </div>
   );
