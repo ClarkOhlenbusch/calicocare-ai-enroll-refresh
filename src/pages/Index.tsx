@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import EnrollmentContainer from "@/components/EnrollmentContainer";
 import Dashboard from "@/components/Dashboard";
+import CarePlansPage from "@/components/CarePlansPage";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<"home" | "enroll">("home");
+  const [currentPage, setCurrentPage] = useState<"home" | "enroll" | "careplans">("home");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -48,7 +49,9 @@ const Index = () => {
         onPageChange={setCurrentPage}
         onLogout={handleLogout}
       />
-      {currentPage === "home" ? <Dashboard /> : <EnrollmentContainer />}
+      {currentPage === "home" ? <Dashboard /> : 
+       currentPage === "enroll" ? <EnrollmentContainer /> : 
+       <CarePlansPage />}
     </div>
   );
 };

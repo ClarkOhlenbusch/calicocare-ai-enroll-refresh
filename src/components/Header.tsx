@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
-  currentPage: "home" | "enroll";
-  onPageChange: (page: "home" | "enroll") => void;
+  currentPage: "home" | "enroll" | "careplans";
+  onPageChange: (page: "home" | "enroll" | "careplans") => void;
   onLogout: () => void;
 }
 
@@ -88,7 +88,11 @@ const Header = ({ currentPage, onPageChange, onLogout }: HeaderProps) => {
               <UserPlus className="w-4 h-4" />
               <span>Enroll</span>
             </Button>
-            <Button variant="ghost" className="flex items-center space-x-2 text-muted-foreground hover:text-foreground">
+            <Button 
+              variant="ghost"
+              className={`flex items-center space-x-2 ${currentPage === "careplans" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+              onClick={() => onPageChange("careplans")}
+            >
               <Calendar className="w-4 h-4" />
               <span>Care Plans</span>
             </Button>
