@@ -97,7 +97,7 @@ const SeniorsTable = () => {
               <SelectTrigger className="w-20">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border z-50">
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="25">25</SelectItem>
                 <SelectItem value="50">50</SelectItem>
@@ -112,7 +112,7 @@ const SeniorsTable = () => {
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border z-50">
                 <SelectItem value="All">All</SelectItem>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="At Risk">At Risk</SelectItem>

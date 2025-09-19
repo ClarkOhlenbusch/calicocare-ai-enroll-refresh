@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import MetricCard from "@/components/MetricCard";
 import SeniorsTable from "@/components/SeniorsTable";
 import { 
@@ -12,11 +14,14 @@ import {
   Activity,
   TrendingUp,
   Weight,
-  Brain
+  Brain,
+  X
 } from "lucide-react";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // Simulate loading data
@@ -26,6 +31,41 @@ const Dashboard = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleMetricClick = (metricTitle: string) => {
+    setSelectedMetric(metricTitle);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedMetric(null);
+  };
+
+  const getModalTitle = (metricTitle: string) => {
+    switch (metricTitle) {
+      case "Alerts":
+        return "Critical Alerts - Seniors Requiring Immediate Attention";
+      case "Missing Data":
+        return "Missing Data - Seniors with Incomplete Information";
+      case "Care Requests":
+        return "Active Care Requests - Pending Senior Requests";
+      case "Expiring Care Plans":
+        return "Expiring Care Plans - Plans Requiring Renewal";
+      case "Enrolled Seniors":
+        return "All Enrolled Seniors - Complete Registry";
+      case "Open Alerts":
+        return "Open Alerts - Ongoing Investigations";
+      case "Weight Trends":
+        return "Weight Trends - Nutritional Health Analysis";
+      case "Caregiver Triage Trend":
+        return "Caregiver Triage - Cases Requiring Assessment";
+      case "AI Companion Trend":
+        return "AI Companion Interactions - Engagement Analytics";
+      default:
+        return "Senior Management Details";
+    }
+  };
 
   const metricsData = [
     {
@@ -156,20 +196,26 @@ const Dashboard = () => {
               color={metric.color}
               trend={metric.trend}
               tooltip={metric.tooltip}
-              onClick={() => console.log(`Clicked ${metric.title}`)}
+              onClick={() => handleMetricClick(metric.title)}
             />
           ))}
         </div>
 
-        {/* Seniors Table */}
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Seniors Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SeniorsTable />
-          </CardContent>
-        </Card>
+        <Dialog open={isModalOpen} onOpenChange={closeModal}>
+          <DialogContent className="max-w-7xl w-[95vw] h-[90vh] p-0 overflow-hidden">
+            <DialogHeader className="p-6 pb-4">
+              <DialogTitle className="text-xl font-semibold">
+                {selectedMetric ? getModalTitle(selectedMetric) : "Senior Details"}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                {selectedMetric && `Detailed view for ${selectedMetric.toLowerCase()} with filtering and management options`}
+              </p>
+            </DialogHeader>
+            <div className="flex-1 overflow-auto px-6 pb-6">
+              <SeniorsTable />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
