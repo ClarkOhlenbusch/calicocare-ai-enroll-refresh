@@ -158,11 +158,13 @@ const AskCaliPage = () => {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="greeting-message">Greeting Message</Label>
-              <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-blue-800 font-medium">
-                  "Hi, this is Cali, your virtual companion. I just wanted to check in with you and see how you feel today!"
-                </p>
-              </div>
+              <Textarea 
+                id="greeting-message"
+                className="bg-blue-50 border-blue-200 text-blue-800 font-medium placeholder:text-blue-600/70 focus:bg-blue-50 focus:border-blue-300 focus:ring-blue-200"
+                placeholder="Enter your custom greeting message..."
+                defaultValue="Hi, this is Cali, your virtual companion. I just wanted to check in with you and see how you feel today!"
+                rows={3}
+              />
             </div>
             
             <div>
