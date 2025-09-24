@@ -4,14 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Search, 
-  Calendar,
-  BarChart3,
-  Layers3,
   ArrowLeft,
   Plus,
   X,
@@ -19,481 +13,406 @@ import {
   Heart,
   Weight,
   Clock,
-  Zap,
-  Target,
   Brain,
   User,
-  Settings,
-  Save,
-  Eye,
-  Filter,
   Sparkles,
-  TrendingUp
+  ChevronRight,
+  PlayCircle,
+  BookOpen,
+  Lightbulb,
+  CheckCircle2,
+  MessageCircle,
+  Target,
+  Calendar,
+  Zap,
+  BarChart3
 } from "lucide-react";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import CarePlanTimeline from "./CarePlanTimeline";
 import CardConfigModal from "./CardConfigModal";
 
 // Mock data for seniors
 const mockSeniors = [
-  { id: 1, name: "Accardi, Ken", dob: "11/11/1999", status: "Active", avatar: "👨‍💼", activeCards: 6, completionRate: 92 },
-  { id: 2, name: "Johnson, Mary", dob: "03/15/1945", status: "Active", avatar: "👩‍🦳", activeCards: 4, completionRate: 88 },
-  { id: 3, name: "Smith, Robert", dob: "07/22/1938", status: "Inactive", avatar: "👨‍🦲", activeCards: 2, completionRate: 45 },
-  { id: 4, name: "Williams, Patricia", dob: "12/05/1942", status: "Active", avatar: "👵", activeCards: 5, completionRate: 95 },
+  { id: 1, name: "Accardi, Ken", dob: "11/11/1999", status: "Active", avatar: "👨‍💼", activeCards: 6, completionRate: 92, condition: "COPD Management" },
+  { id: 2, name: "Johnson, Mary", dob: "03/15/1945", status: "Active", avatar: "👩‍🦳", activeCards: 4, completionRate: 88, condition: "Hypertension" },
+  { id: 3, name: "Smith, Robert", dob: "07/22/1938", status: "Inactive", avatar: "👨‍🦲", activeCards: 2, completionRate: 45, condition: "Diabetes" },
+  { id: 4, name: "Williams, Patricia", dob: "12/05/1942", status: "Active", avatar: "👵", activeCards: 5, completionRate: 95, condition: "Cardiac Recovery" },
 ];
 
-// Mock card library data
+// Simplified card library with better categorization
 const cardLibrary = {
-  measurement: [
-    { id: "bp", name: "Blood Pressure", icon: Heart, gradient: "from-rose-400 to-pink-500", category: "measurement", description: "Monitor blood pressure readings" },
-    { id: "copd1", name: "Daily COPD Question #1", icon: Brain, gradient: "from-violet-400 to-purple-500", category: "measurement", description: "Assess breathing comfort" },
-    { id: "copd2", name: "Daily COPD Question #2", icon: Brain, gradient: "from-violet-400 to-purple-500", category: "measurement", description: "Track medication effectiveness" },
-    { id: "copd3", name: "Daily COPD Question #3", icon: Brain, gradient: "from-violet-400 to-purple-500", category: "measurement", description: "Monitor symptom progression" },
-    { id: "copd4", name: "Daily COPD Question #4", icon: Brain, gradient: "from-violet-400 to-purple-500", category: "measurement", description: "Check activity tolerance" },
-    { id: "copd5", name: "Daily COPD Question #5", icon: Brain, gradient: "from-violet-400 to-purple-500", category: "measurement", description: "Overall wellness check" },
+  "Daily Monitoring": [
+    { id: "bp", name: "Blood Pressure Check", icon: Heart, color: "bg-red-500", category: "monitoring", description: "Daily blood pressure readings with trend tracking", difficulty: "Easy", duration: "2 min" },
+    { id: "weight", name: "Weight Tracking", icon: Weight, color: "bg-blue-500", category: "monitoring", description: "Monitor weight changes and patterns", difficulty: "Easy", duration: "1 min" },
+    { id: "mood", name: "Mood Assessment", icon: Brain, color: "bg-purple-500", category: "monitoring", description: "Track emotional wellbeing daily", difficulty: "Easy", duration: "3 min" },
+    { id: "symptoms", name: "Symptom Check", icon: MessageCircle, color: "bg-orange-500", category: "monitoring", description: "Report any concerning symptoms", difficulty: "Easy", duration: "5 min" },
   ],
-  automatic: [
-    { id: "weight", name: "Weight Tracking", icon: Weight, gradient: "from-blue-400 to-cyan-500", category: "automatic", description: "Automatic weight measurements" },
-    { id: "steps", name: "Daily Steps", icon: Activity, gradient: "from-green-400 to-emerald-500", category: "automatic", description: "Track daily step count" },
-    { id: "distance", name: "Distance Walked", icon: Target, gradient: "from-orange-400 to-amber-500", category: "automatic", description: "Monitor walking distance" },
-    { id: "sleep", name: "Sleep Duration", icon: Clock, gradient: "from-indigo-400 to-purple-500", category: "automatic", description: "Track sleep patterns" },
-    { id: "calories-burned", name: "Total Calories", icon: Zap, gradient: "from-red-400 to-rose-500", category: "automatic", description: "Monitor energy expenditure" },
-    { id: "activity-calories", name: "Activity Calories", icon: Activity, gradient: "from-yellow-400 to-orange-500", category: "automatic", description: "Track active calories burned" },
+  "Physical Activity": [
+    { id: "walking", name: "Daily Walk", icon: Activity, color: "bg-green-500", category: "activity", description: "Gentle walking exercise routine", difficulty: "Easy", duration: "15 min" },
+    { id: "chair-exercise", name: "Chair Exercises", icon: Activity, color: "bg-teal-500", category: "activity", description: "Seated strength and flexibility", difficulty: "Easy", duration: "10 min" },
+    { id: "stretching", name: "Morning Stretches", icon: Activity, color: "bg-cyan-500", category: "activity", description: "Gentle stretching routine", difficulty: "Easy", duration: "8 min" },
+    { id: "balance", name: "Balance Training", icon: Target, color: "bg-indigo-500", category: "activity", description: "Improve stability and prevent falls", difficulty: "Medium", duration: "12 min" },
   ],
-  activity: [
-    { id: "sit-hour", name: "Hourly Sitting", icon: Activity, gradient: "from-teal-400 to-cyan-500", category: "activity", description: "Guided sitting exercises" },
-    { id: "standing-march", name: "Standing March", icon: Activity, gradient: "from-emerald-400 to-green-500", category: "activity", description: "Low-impact marching exercise" },
-    { id: "therapeutic-massage", name: "Therapeutic Massage", icon: Activity, gradient: "from-pink-400 to-rose-500", category: "activity", description: "Self-massage techniques" },
-    { id: "therapy-ball-knees", name: "Therapy Ball Exercise", icon: Activity, gradient: "from-cyan-400 to-blue-500", category: "activity", description: "Knee strengthening with therapy ball" },
-    { id: "video-inhaler", name: "Inhaler Technique", icon: Activity, gradient: "from-purple-400 to-indigo-500", category: "activity", description: "Proper inhaler usage training" },
-  ],
-  workout: [
-    { id: "brief-workout", name: "Quick Full-Body", icon: Activity, gradient: "from-orange-400 to-red-500", category: "workout", description: "15-minute full body routine" },
-    { id: "full-body", name: "Complete Workout", icon: Activity, gradient: "from-red-400 to-pink-500", category: "workout", description: "Comprehensive exercise session" },
-    { id: "leg-workout", name: "Leg Strengthening", icon: Activity, gradient: "from-amber-400 to-orange-500", category: "workout", description: "Lower body focused exercises" },
-    { id: "chest-workout", name: "Upper Body", icon: Activity, gradient: "from-lime-400 to-green-500", category: "workout", description: "Chest and arm exercises" },
-    { id: "post-mastectomy", name: "Recovery Routine", icon: Activity, gradient: "from-violet-400 to-purple-500", category: "workout", description: "Post-surgery rehabilitation" },
+  "Medication & Care": [
+    { id: "medication", name: "Medication Reminder", icon: Clock, color: "bg-amber-500", category: "care", description: "Track medication adherence", difficulty: "Easy", duration: "2 min" },
+    { id: "inhaler", name: "Inhaler Technique", icon: Zap, color: "bg-pink-500", category: "care", description: "Proper inhaler usage guidance", difficulty: "Medium", duration: "5 min" },
+    { id: "appointment", name: "Appointment Prep", icon: Calendar, color: "bg-violet-500", category: "care", description: "Prepare for upcoming appointments", difficulty: "Easy", duration: "10 min" },
   ]
 };
 
-interface SortableCardProps {
-  card: any;
-  onEdit: (card: any) => void;
-  onRemove?: (cardId: string) => void;
-  isActive?: boolean;
-}
-
-function SortableCard({ card, onEdit, onRemove, isActive = false }: SortableCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: card.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const IconComponent = card.icon;
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`group relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br ${card.gradient} text-white p-4 min-h-[100px]`}
-      onClick={() => onEdit(card)}
-    >
-      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <div className="relative z-10">
-        <div className="flex items-start justify-between mb-3">
-          <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-            <IconComponent className="w-5 h-5" />
-          </div>
-          {isActive && onRemove && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove(card.id);
-              }}
-              className="p-1 bg-red-500/80 hover:bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-        <h3 className="font-semibold text-sm mb-1 line-clamp-2">{card.name}</h3>
-        {card.description && (
-          <p className="text-xs opacity-80 line-clamp-2">{card.description}</p>
-        )}
-      </div>
-      <div className="absolute -bottom-2 -right-2 w-16 h-16 bg-white/5 rounded-full" />
-    </div>
-  );
-}
-
 const CarePlanEditor = () => {
-  const [selectedSenior, setSelectedSenior] = useState(mockSeniors[0]);
-  const [viewMode, setViewMode] = useState("stack");
-  const [filterType, setFilterType] = useState<"all" | "reminder" | "activity" | "measure" | "survey">("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [currentStep, setCurrentStep] = useState<"welcome" | "select-patient" | "build-plan" | "timeline">("welcome");
+  const [selectedSenior, setSelectedSenior] = useState<any>(null);
+  const [selectedCards, setSelectedCards] = useState<any[]>([]);
   const [selectedCard, setSelectedCard] = useState<any>(null);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-  const [activeCards, setActiveCards] = useState([
-    cardLibrary.automatic.find(c => c.id === "weight"),
-    cardLibrary.automatic.find(c => c.id === "steps"),
-    cardLibrary.automatic.find(c => c.id === "distance"),
-    cardLibrary.automatic.find(c => c.id === "sleep"),
-    cardLibrary.automatic.find(c => c.id === "calories-burned"),
-    cardLibrary.automatic.find(c => c.id === "activity-calories"),
-  ].filter(Boolean));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleCardEdit = (card: any) => {
-    setSelectedCard(card);
-    setIsConfigModalOpen(true);
+  const handlePatientSelect = (senior: any) => {
+    setSelectedSenior(senior);
+    setCurrentStep("build-plan");
   };
 
   const handleAddCard = (card: any) => {
-    if (!activeCards.find(c => c.id === card.id)) {
-      setActiveCards([...activeCards, card]);
+    if (!selectedCards.find(c => c.id === card.id)) {
+      setSelectedCards([...selectedCards, card]);
     }
   };
 
   const handleRemoveCard = (cardId: string) => {
-    setActiveCards(activeCards.filter(c => c.id !== cardId));
+    setSelectedCards(selectedCards.filter(c => c.id !== cardId));
   };
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      setActiveCards((items) => {
-        const oldIndex = items.findIndex(item => item.id === active.id);
-        const newIndex = items.findIndex(item => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+  const handleCardConfig = (card: any) => {
+    setSelectedCard(card);
+    setIsConfigModalOpen(true);
   };
 
-  const getFilteredLibrary = () => {
-    let allCards = [...cardLibrary.measurement, ...cardLibrary.automatic, ...cardLibrary.activity, ...cardLibrary.workout];
-    
-    if (searchTerm) {
-      allCards = allCards.filter(card => 
-        card.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (filterType !== "all") {
-      // Filter by type - you can expand this logic based on your needs
-      allCards = allCards.filter(card => {
-        switch (filterType) {
-          case "measure":
-            return card.category === "measurement" || card.category === "automatic";
-          case "activity":
-            return card.category === "activity" || card.category === "workout";
-          default:
-            return true;
-        }
-      });
-    }
-
-    return allCards;
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(selectedCategory === category ? null : category);
   };
 
-  if (viewMode === "timeline") {
-    return <CarePlanTimeline selectedSenior={selectedSenior} onBack={() => setViewMode("stack")} />;
+  if (currentStep === "timeline") {
+    return <CarePlanTimeline selectedSenior={selectedSenior} onBack={() => setCurrentStep("build-plan")} />;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Modern Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="hover:bg-white/80">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
+  if (currentStep === "welcome") {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Sparkles className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Care Plan Studio</h1>
+            <p className="text-xl text-gray-600 mb-8">Create personalized care plans that help seniors thrive</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                  <User className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Select Patient</h3>
+                <p className="text-gray-600 text-sm">Choose which senior you're creating a care plan for</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
+                  <Plus className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Build Plan</h3>
+                <p className="text-gray-600 text-sm">Add activities, monitoring, and care tasks</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
+                  <CheckCircle2 className="w-8 h-8 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Review & Deploy</h3>
+                <p className="text-gray-600 text-sm">Preview and activate the care plan</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-4">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3"
+              onClick={() => setCurrentStep("select-patient")}
+            >
+              <PlayCircle className="w-5 h-5 mr-2" />
+              Get Started
+            </Button>
+            <p className="text-sm text-gray-500">
+              Need help? <button className="text-blue-600 hover:underline">View the guide</button>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentStep === "select-patient") {
+    return (
+      <div className="min-h-screen bg-gray-100 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <Button variant="ghost" onClick={() => setCurrentStep("welcome")} className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Care Plan Studio
-                </h1>
-                <p className="text-muted-foreground">Design personalized care experiences</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Select Patient</h1>
+                <p className="text-gray-600">Choose which senior you're creating a care plan for</p>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Step 1 of 3</span>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white">
-                <Save className="w-4 h-4 mr-2" />
-                Save Draft
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            {mockSeniors.map((senior) => (
+              <Card 
+                key={senior.id} 
+                className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer group hover:scale-105"
+                onClick={() => handlePatientSelect(senior)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="text-4xl">{senior.avatar}</div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{senior.name}</h3>
+                        <p className="text-gray-600">DOB: {senior.dob}</p>
+                        <p className="text-sm text-gray-500">{senior.condition}</p>
+                      </div>
+                    </div>
+                    <Badge variant={senior.status === "Active" ? "default" : "secondary"}>
+                      {senior.status}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{senior.activeCards}</div>
+                      <div className="text-xs text-gray-500">Active Cards</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{senior.completionRate}%</div>
+                      <div className="text-xs text-gray-500">Completion</div>
+                    </div>
+                    <div className="text-center">
+                      <ChevronRight className="w-6 h-6 text-gray-400 mx-auto group-hover:text-blue-600 transition-colors" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Build Plan Step
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <Button variant="ghost" onClick={() => setCurrentStep("select-patient")} className="mb-4">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Change Patient
+          </Button>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Build Care Plan</h1>
+              <p className="text-gray-600">Add activities and monitoring for {selectedSenior?.name}</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">Step 2 of 3</span>
+              <Button 
+                variant="outline"
+                onClick={() => setCurrentStep("timeline")}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Preview Timeline
               </Button>
-              <div className="flex bg-white/80 rounded-lg p-1">
-                <Button
-                  variant={viewMode === "stack" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("stack")}
-                  className="rounded-md"
-                >
-                  <Layers3 className="w-4 h-4 mr-2" />
-                  Designer
-                </Button>
-                <Button
-                  variant={viewMode === "timeline" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("timeline")}
-                  className="rounded-md"
-                >
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Timeline
-                </Button>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Patient Selection Card */}
-        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+        {/* Patient Summary */}
+        <Card className="bg-white shadow-lg mb-8">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white">
-                    <User className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Designing care plan for</p>
-                    <Select value={selectedSenior.id.toString()} onValueChange={(value) => {
-                      const senior = mockSeniors.find(s => s.id === parseInt(value));
-                      if (senior) setSelectedSenior(senior);
-                    }}>
-                      <SelectTrigger className="w-80 bg-white border-0 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-2xl">{selectedSenior.avatar}</span>
-                          <div className="text-left">
-                            <div className="font-semibold">{selectedSenior.name}</div>
-                            <div className="text-sm text-muted-foreground">DOB: {selectedSenior.dob}</div>
-                          </div>
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-0 shadow-xl z-50">
-                        {mockSeniors.map((senior) => (
-                          <SelectItem key={senior.id} value={senior.id.toString()}>
-                            <div className="flex items-center space-x-3 py-1">
-                              <span className="text-xl">{senior.avatar}</span>
-                              <div>
-                                <div className="font-medium">{senior.name}</div>
-                                <div className="text-sm text-muted-foreground">{senior.dob}</div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-3xl">{selectedSenior?.avatar}</div>
+                <div>
+                  <h3 className="text-xl font-semibold">{selectedSenior?.name}</h3>
+                  <p className="text-gray-600">{selectedSenior?.condition}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{selectedSenior.activeCards}</div>
-                  <div className="text-sm text-muted-foreground">Active Cards</div>
+                  <div className="text-2xl font-bold text-blue-600">{selectedCards.length}</div>
+                  <div className="text-sm text-gray-500">Selected Cards</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{selectedSenior.completionRate}%</div>
-                  <div className="text-sm text-muted-foreground">Completion</div>
-                </div>
-                <Button variant="outline" size="sm" className="bg-white hover:bg-gray-50">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
-                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions & Search */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="relative flex-1 min-w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search cards..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/90 border-0 shadow-sm hover:shadow-md transition-shadow"
-              />
-            </div>
-            <Button variant="outline" size="sm" className="bg-white/90 hover:bg-white">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" className="bg-white/90 hover:bg-white">
-              <Settings className="w-4 h-4 mr-2" />
-              Thresholds
-            </Button>
-            <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Suggest
-            </Button>
-          </div>
-        </div>
-
-        {/* Main Editor Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Active Care Plan */}
-          <div className="xl:col-span-2">
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold">Active Care Plan</CardTitle>
-                  <Badge className="bg-white/20 text-white">
-                    {activeCards.length} Cards Active
-                  </Badge>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Selected Cards */}
+          <div className="lg:col-span-2">
+            <Card className="bg-white shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Selected Care Activities</span>
+                  <Badge>{selectedCards.length} items</Badge>
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext items={activeCards} strategy={verticalListSortingStrategy}>
-                    {activeCards.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {activeCards.map((card) => (
-                          <SortableCard
-                            key={card.id}
-                            card={card}
-                            onEdit={handleCardEdit}
-                            onRemove={handleRemoveCard}
-                            isActive={true}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-16">
-                        <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                          <Plus className="w-12 h-12 text-gray-400" />
+                {selectedCards.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Plus className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No activities selected</h3>
+                    <p className="text-gray-500 mb-4">Choose activities from the library to build the care plan</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {selectedCards.map((card) => {
+                      const IconComponent = card.icon;
+                      return (
+                        <div
+                          key={card.id}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-10 h-10 ${card.color} rounded-lg flex items-center justify-center`}>
+                              <IconComponent className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{card.name}</h4>
+                              <p className="text-sm text-gray-500">{card.description}</p>
+                              <div className="flex items-center space-x-4 mt-1">
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                  {card.difficulty}
+                                </span>
+                                <span className="text-xs text-gray-500">{card.duration}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCardConfig(card)}
+                            >
+                              Configure
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveCard(card.id)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-600 mb-2">Start Building</h3>
-                        <p className="text-gray-500 mb-4">Drag cards from the library to create a personalized care plan</p>
-                        <Button variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100">
-                          Browse Card Library
-                        </Button>
-                      </div>
-                    )}
-                  </SortableContext>
-                </DndContext>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Card Library */}
-          <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl">
-            <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
-              <CardTitle className="text-xl font-semibold">Card Library</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-4 bg-gray-100">
-                  <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-                  <TabsTrigger value="measurement" className="text-xs">Measure</TabsTrigger>
-                  <TabsTrigger value="activity" className="text-xs">Activity</TabsTrigger>
-                  <TabsTrigger value="workout" className="text-xs">Workout</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="all" className="space-y-6">
-                  <ScrollArea className="h-[600px] pr-4">
-                    {Object.entries(cardLibrary).map(([category, cards]) => (
-                      <div key={category} className="mb-6">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold text-sm uppercase tracking-wide text-gray-600">
-                            {category} Cards
-                          </h3>
-                          <Badge variant="secondary" className="text-xs">
-                            {cards.length}
-                          </Badge>
+          {/* Activity Library */}
+          <div>
+            <Card className="bg-white shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BookOpen className="w-5 h-5" />
+                  <span>Activity Library</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {Object.entries(cardLibrary).map(([category, cards]) => (
+                    <div key={category}>
+                      <button
+                        onClick={() => handleCategorySelect(category)}
+                        className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <span className="font-medium text-gray-900">{category}</span>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary">{cards.length}</Badge>
+                          <ChevronRight 
+                            className={`w-4 h-4 transition-transform ${selectedCategory === category ? 'rotate-90' : ''}`}
+                          />
                         </div>
-                        <div className="grid grid-cols-1 gap-3">
-                          {cards.map((card) => (
-                            <div key={card.id} className="group relative">
-                              <div className="flex items-center gap-3">
-                                <div className="flex-1">
-                                  <SortableCard card={card} onEdit={handleCardEdit} />
-                                </div>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleAddCard(card)}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-gray-50 shadow-sm"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </ScrollArea>
-                </TabsContent>
-
-                {["measurement", "activity", "workout"].map((category) => (
-                  <TabsContent key={category} value={category}>
-                    <ScrollArea className="h-[600px] pr-4">
-                      <div className="grid grid-cols-1 gap-3">
-                        {cardLibrary[category as keyof typeof cardLibrary].map((card) => (
-                          <div key={card.id} className="group relative">
-                            <div className="flex items-center gap-3">
-                              <div className="flex-1">
-                                <SortableCard card={card} onEdit={handleCardEdit} />
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="ghost"
+                      </button>
+                      
+                      {selectedCategory === category && (
+                        <div className="mt-2 space-y-2">
+                          {cards.map((card) => {
+                            const IconComponent = card.icon;
+                            const isSelected = selectedCards.find(c => c.id === card.id);
+                            return (
+                              <div
+                                key={card.id}
+                                className={`p-3 border rounded-lg transition-all cursor-pointer ${
+                                  isSelected ? 'border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                                }`}
                                 onClick={() => handleAddCard(card)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-gray-50 shadow-sm"
                               >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </CardContent>
-          </Card>
+                                <div className="flex items-start space-x-3">
+                                  <div className={`w-8 h-8 ${card.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                                    <IconComponent className="w-4 h-4 text-white" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-medium text-sm text-gray-900">{card.name}</h4>
+                                    <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+                                    <div className="flex items-center space-x-2 mt-2">
+                                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                        {card.duration}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-
-        {/* Card Configuration Modal */}
-        <CardConfigModal
-          card={selectedCard}
-          isOpen={isConfigModalOpen}
-          onClose={() => {
-            setIsConfigModalOpen(false);
-            setSelectedCard(null);
-          }}
-        />
       </div>
+
+      <CardConfigModal
+        card={selectedCard}
+        isOpen={isConfigModalOpen}
+        onClose={() => {
+          setIsConfigModalOpen(false);
+          setSelectedCard(null);
+        }}
+      />
     </div>
   );
 };
